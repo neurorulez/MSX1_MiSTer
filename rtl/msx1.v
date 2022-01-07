@@ -251,13 +251,38 @@ keyboard msx_key
 //  -----------------------------------------------------------------------------
 //  -- Sound AY-3-8910
 //  -----------------------------------------------------------------------------
+wire [9:0] ay_ch_mix;
 wire [7:0] d_from_psg,ay_ch_a, ay_ch_b, ay_ch_c, psg_ioa, psg_iob;
 wire psg_bdir = ~(~(~wait_n | powait) | wr_n);
 wire psg_bc = ~((~(~rd_n & a[1]) | psg_n ) & ~(~a[0] & psg_bdir));
-assign audio = {keybeep, (cas_audio_in & ~cas_motor), 1'b0, ay_ch_a + ay_ch_b + ay_ch_c};
+//assign audio = {keybeep, (cas_audio_in & ~cas_motor), 1'b0, ay_ch_a + ay_ch_b + ay_ch_c};
+assign audio = {keybeep,8'h00} | {(cas_audio_in & ~cas_motor),8'h00} | {ay_ch_mix,1'b0};
 wire [5:0] joy_a = {~joy1[5], ~joy1[4], ~joy1[0], ~joy1[1], ~joy1[2], ~joy1[3]};
 wire [5:0] joy_b = {~joy0[5], ~joy0[4], ~joy0[0], ~joy0[1], ~joy0[2], ~joy0[3]};
 assign psg_ioa = {cas_audio_in,1'b0, psg_iob[6] ? joy_a : joy_b};
+
+jt49_bus PSG
+(
+	.rst_n(~reset),
+	.clk(clk),
+	.clk_en(clk_en_3m58_p),
+	.bdir(psg_bdir),
+	.bc1(psg_bc),
+	.din(d_from_cpu),
+	.sel(1),
+	.dout(d_from_psg),
+	.sound(ay_ch_mix),
+	.A(),
+	.B(),
+	.C(),
+	.IOA_in(psg_ioa),
+	.IOA_out(),
+	.IOB_in(8'h0),
+	.IOB_out(psg_iob)
+);
+
+
+/*
 YM2149 PSG
 (
 	.CLK(clk),
@@ -280,6 +305,7 @@ YM2149 PSG
 	.IOB_in(8'h0),
 	.IOB_out(psg_iob)
 );
+*/
 
 //  -----------------------------------------------------------------------------
 //  -- ROM CARTRIGE
