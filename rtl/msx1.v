@@ -255,7 +255,7 @@ wire [9:0] ay_ch_mix;
 wire [7:0] d_from_psg, psg_ioa, psg_iob;
 wire psg_bdir = ~(~(~wait_n | powait) | wr_n);
 wire psg_bc = ~((~(~rd_n & a[1]) | psg_n ) & ~(~a[0] & psg_bdir));
-assign audio = {keybeep,8'h00} | {(cas_audio_in & ~cas_motor),8'h00} | {ay_ch_mix,1'b0};
+assign audio = {keybeep, (cas_audio_in & ~cas_motor), 9'h0} | {ay_ch_mix,1'b0};
 wire [5:0] joy_a = {~joy1[5], ~joy1[4], ~joy1[0], ~joy1[1], ~joy1[2], ~joy1[3]};
 wire [5:0] joy_b = {~joy0[5], ~joy0[4], ~joy0[0], ~joy0[1], ~joy0[2], ~joy0[3]};
 assign psg_ioa = {cas_audio_in,1'b0, psg_iob[6] ? joy_a : joy_b};
